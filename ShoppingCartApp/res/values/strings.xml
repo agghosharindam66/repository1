@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Shopping Cart</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    
+    <!-- activity_loginhome -->
+    <string name="loginBtn">Login</string>
+    <string name="searchBtn">Search</string>
+    <string name="addToCartBtn">Add To Cart</string>
+    
+    <string name="homeDesc">Welcome</string>
+    <string name="nameDesc">Name :: </string>
+    <string name="price">Price :: </string>
+    
+
+</resources>
