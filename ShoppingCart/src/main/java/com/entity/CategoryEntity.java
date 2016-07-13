@@ -15,7 +15,7 @@ public class CategoryEntity {
 	@Column(name = "CATEGORY_NAME")
 	private String categoryName;
 
-	/**Test1
+	/**Test1aaaaa
 	 * @return the categoryId
 	 */
 	public int getCategoryId() {
