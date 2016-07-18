@@ -1,10 +1,23 @@
 package com.entity;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="member_dtls")
 public class MemberDtlsEntity {
+	@Id
+	@Column(name="MEMBER_ID")
 	private String memberId="";
+	@Column(name="MEMBER_NAME")
 	private String memberName="";
+	@Column(name="MEMBER_ADDRESS")
 	private String memberAddress="";
+	@Column(name="CONTACT_NO")
 	private String contactNo="";
+	@Column(name="EMAIL_ADDRESS")
 	private String emailId="";
 	/**
 	 * @return the memberId
