@@ -1,11 +1,24 @@
 package com.entity;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="product")
 public class ProductDtlsEntity {
 	
+	@Id
+	@Column(name="PRODUCT_ID")
 	private String productId="";
+	@Column(name="PRODUCT_NAME")
 	private String productName="";
+	@Column(name="SELLER_ID")
 	private String sellerId="";
+	@Column(name="PRICE")
 	private double price;
+	@Column(name="CATEGORY_ID")
 	private String categoryId="";
 	/**
 	 * @return the productId

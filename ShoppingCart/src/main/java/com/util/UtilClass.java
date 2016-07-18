@@ -5,24 +5,18 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.text.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.cfg.AnnotationConfiguration;
-import org.hibernate.cfg.Configuration;
-
 import com.entity.CategoryEntity;
-import com.entity.ImageEntity;
 import com.entity.MemberDtlsEntity;
 import com.entity.ProductDtlsEntity;
 import com.model.LoginResponseBean;
 import com.model.RestRequestBean;
 
-public class UtilClass {
-	Configuration cfg=new AnnotationConfiguration().configure();
+public class UtilClass {	
 	public byte[] readImage(RestRequestBean bean) throws Exception{
 		Connection con=getConnection();
 		PreparedStatement pst=con.prepareStatement("select IMAGE from image_tab where product_id=? and image_id=?");
@@ -36,43 +30,41 @@ public class UtilClass {
 		return image;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<CategoryEntity> getCategoryList() throws Exception{		
-		cfg.addAnnotatedClass(CategoryEntity.class);
-		Session session=cfg.buildSessionFactory().openSession();
-		Query query=session.createQuery("from CategoryEntity");
-		List<CategoryEntity> list=query.list();				
+		Session session=com.util.Configuration.getSession(CategoryEntity.class);
+		Query query=session.createQuery("from CategoryEntity");		
+		List<CategoryEntity> list=query.list();		
+		session.close();
 		return list;		
 	}
 	
+	@SuppressWarnings("unchecked")
 	public MemberDtlsEntity getMemberDtls(String memberId) throws Exception{	
-		cfg.addAnnotatedClass(MemberDtlsEntity.class);
-		Session session=cfg.buildSessionFactory().openSession();
+		Session session=com.util.Configuration.getSession(CategoryEntity.class);
 		Query query=session.createQuery("from MemberDtlsEntity where member_id = :member_id");
 		query.setString("member_id", memberId);
 		List<MemberDtlsEntity> list=query.list();				
 		if(list.isEmpty()){
 			list.add(new MemberDtlsEntity());
-		}		
+		}	
+		session.close();
 		return list.get(0);		
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ProductDtlsEntity getProductDtls(String productId) throws Exception{		
-		Connection con=getConnection();
-		PreparedStatement pst=con.prepareStatement("select * from product where product_id = ?");
-		pst.setString(1, productId);		
-		ResultSet rs=pst.executeQuery();
-		ProductDtlsEntity entity=new ProductDtlsEntity();
-		while(rs.next()){			
-			entity.setCategoryId(rs.getString("CATEGORY_ID"));
-			entity.setPrice(rs.getDouble("PRICE"));
-			entity.setProductId(rs.getString("PRODUCT_ID"));
-			entity.setProductName(rs.getString("PRODUCT_NAME"));
-			entity.setSellerId(rs.getString("SELLER_ID"));
-		}
-		return entity;		
+		Session session=com.util.Configuration.getSession(CategoryEntity.class);
+		Query query=session.createQuery("from ProductDtlsEntity where product_id = :product_id");
+		query.setString("product_id", productId);
+		List<ProductDtlsEntity> list=query.list();				
+		if(list.isEmpty()){
+			list.add(new ProductDtlsEntity());
+		}		
+		session.close();
+		return list.get(0);			
 	}
-	
-	
+		
 	public LoginResponseBean validateUser(RestRequestBean bean) throws Exception{		
 		Connection con=getConnection();
 		PreparedStatement pst=con.prepareStatement("select * from login_dtls where member_id = ?");

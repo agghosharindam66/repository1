@@ -16,7 +16,12 @@
 
 	<listener>
 		<listener-class>
-			org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+			org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap
+		</listener-class>
+		<listener-class>
+			com.util.Configuration
+		</listener-class>
+		
 	</listener>
 
 	<servlet>
