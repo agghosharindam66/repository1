@@ -5,27 +5,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.cfg.AnnotationConfiguration;
-
-
-
-
-
-
-
-
-
-
-
-
-
+import org.hibernate.cfg.Configuration;
 
 import com.entity.CategoryEntity;
 import com.entity.ImageEntity;
@@ -35,7 +22,7 @@ import com.model.LoginResponseBean;
 import com.model.RestRequestBean;
 
 public class UtilClass {
-	
+	Configuration cfg=new AnnotationConfiguration().configure();
 	public byte[] readImage(RestRequestBean bean) throws Exception{
 		Connection con=getConnection();
 		PreparedStatement pst=con.prepareStatement("select IMAGE from image_tab where product_id=? and image_id=?");
@@ -50,33 +37,23 @@ public class UtilClass {
 	}
 	
 	public List<CategoryEntity> getCategoryList() throws Exception{		
-		Connection con=getConnection();
-		PreparedStatement pst=con.prepareStatement("select * from category");
-		List<CategoryEntity> list=new ArrayList<CategoryEntity>();
-		ResultSet rs=pst.executeQuery();
-		while(rs.next()){
-			CategoryEntity entity=new CategoryEntity();
-			entity.setCategoryId(rs.getInt(1));
-			entity.setCategoryName(rs.getString(2));
-			list.add(entity);
-		}
+		cfg.addAnnotatedClass(CategoryEntity.class);
+		Session session=cfg.buildSessionFactory().openSession();
+		Query query=session.createQuery("from CategoryEntity");
+		List<CategoryEntity> list=query.list();				
 		return list;		
 	}
 	
-	public MemberDtlsEntity getMemberDtls(String memberId) throws Exception{		
-		Connection con=getConnection();
-		PreparedStatement pst=con.prepareStatement("select * from member_dtls where member_id = ?");
-		pst.setString(1, memberId);
-		MemberDtlsEntity entity=new MemberDtlsEntity();
-		ResultSet rs=pst.executeQuery();
-		while(rs.next()){			
-			entity.setMemberId(rs.getString("MEMBER_ID"));
-			entity.setMemberName(rs.getString("MEMBER_NAME"));
-			entity.setMemberAddress(rs.getString("MEMBER_ADDRESS"));
-			entity.setContactNo(rs.getString("CONTACT_NO"));
-			entity.setEmailId(rs.getString("EMAIL_ADDRESS"));
-		}
-		return entity;		
+	public MemberDtlsEntity getMemberDtls(String memberId) throws Exception{	
+		cfg.addAnnotatedClass(MemberDtlsEntity.class);
+		Session session=cfg.buildSessionFactory().openSession();
+		Query query=session.createQuery("from MemberDtlsEntity where member_id = :member_id");
+		query.setString("member_id", memberId);
+		List<MemberDtlsEntity> list=query.list();				
+		if(list.isEmpty()){
+			list.add(new MemberDtlsEntity());
+		}		
+		return list.get(0);		
 	}
 	
 	public ProductDtlsEntity getProductDtls(String productId) throws Exception{		
