@@ -8,20 +8,13 @@
 		<param-name>resteasy.scan</param-name>
 		<param-value>true</param-value>
 	</context-param>
-
 	<context-param>
 		<param-name>resteasy.servlet.mapping.prefix</param-name>
 		<param-value>/shoppingCart</param-value>
 	</context-param>
-
 	<listener>
-		<listener-class>
-			org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap
-		</listener-class>
-		<listener-class>
-			com.util.Configuration
-		</listener-class>
-		
+		<listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+		<listener-class>com.util.Configuration</listener-class>	
 	</listener>
 
 	<servlet>

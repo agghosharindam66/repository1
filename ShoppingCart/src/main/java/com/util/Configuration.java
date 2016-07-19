@@ -18,12 +18,14 @@ public class Configuration implements ServletContextListener{
 		
 	}
 
+	@SuppressWarnings("deprecation")
 	public void contextInitialized(ServletContextEvent arg0) {
 		// TODO Auto-generated method stub
 		cfg=new AnnotationConfiguration().configure();
 		objSet=new HashSet<Class>();
 	}
 
+	@SuppressWarnings("deprecation")
 	public static <T> Session getSession( Class<T>  className){
 		if(!objSet.contains(className)){
 			cfg.addAnnotatedClass(className);

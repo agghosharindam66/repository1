@@ -10,7 +10,10 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
+
 import com.entity.CategoryEntity;
+import com.entity.ImageEntity;
+import com.entity.LoginDtlsEntity;
 import com.entity.MemberDtlsEntity;
 import com.entity.ProductDtlsEntity;
 import com.model.LoginResponseBean;
@@ -41,8 +44,8 @@ public class UtilClass {
 	
 	@SuppressWarnings("unchecked")
 	public MemberDtlsEntity getMemberDtls(String memberId) throws Exception{	
-		Session session=com.util.Configuration.getSession(CategoryEntity.class);
-		Query query=session.createQuery("from MemberDtlsEntity where member_id = :member_id");
+		Session session=com.util.Configuration.getSession(MemberDtlsEntity.class);
+		Query query=session.createQuery("from MemberDtlsEntity where memberId = :member_id");
 		query.setString("member_id", memberId);
 		List<MemberDtlsEntity> list=query.list();				
 		if(list.isEmpty()){
@@ -54,8 +57,8 @@ public class UtilClass {
 	
 	@SuppressWarnings("unchecked")
 	public ProductDtlsEntity getProductDtls(String productId) throws Exception{		
-		Session session=com.util.Configuration.getSession(CategoryEntity.class);
-		Query query=session.createQuery("from ProductDtlsEntity where product_id = :product_id");
+		Session session=com.util.Configuration.getSession(ProductDtlsEntity.class);
+		Query query=session.createQuery("from ProductDtlsEntity where productId = :product_id");
 		query.setString("product_id", productId);
 		List<ProductDtlsEntity> list=query.list();				
 		if(list.isEmpty()){
@@ -65,69 +68,63 @@ public class UtilClass {
 		return list.get(0);			
 	}
 		
+	@SuppressWarnings("unchecked")
 	public LoginResponseBean validateUser(RestRequestBean bean) throws Exception{		
-		Connection con=getConnection();
-		PreparedStatement pst=con.prepareStatement("select * from login_dtls where member_id = ?");
-		pst.setString(1, bean.getMemberId());		
 		LoginResponseBean responseBean=new LoginResponseBean();
-		ResultSet rs=pst.executeQuery();
-		if(rs.next()){			
-			PreparedStatement pst1=con.prepareStatement("select * from login_dtls where member_id = ? and password=?");
-			pst1.setString(1, bean.getMemberId());		
-			pst1.setString(2, bean.getPassword());	
-			ResultSet rs1=pst1.executeQuery();
-			if(rs1.next()){
-				responseBean.setMemberId(rs1.getString("MEMBER_ID"));
-				responseBean.setPassword(rs1.getString("PASSWORD"));
-				responseBean.setRole(rs1.getString("ROLE"));
+		Session session=com.util.Configuration.getSession(LoginDtlsEntity.class);
+		LoginDtlsEntity entity=(LoginDtlsEntity)session.get(LoginDtlsEntity.class, bean.getMemberId());		
+		if(entity!=null && !"".equalsIgnoreCase(entity.getMemberId())){
+			Query query=session.createQuery("from LoginDtlsEntity where memberId = :memberId and password= :password");
+			query.setString("memberId", bean.getMemberId());
+			query.setString("password", bean.getPassword());
+			List<LoginDtlsEntity> list=query.list();
+			if(!list.isEmpty()){
+				entity=list.get(0);
+				responseBean.setMemberId(entity.getMemberId());
+				responseBean.setPassword(entity.getPassword());
+				responseBean.setRole(entity.getRole());
 				responseBean.setErrorCode("0");
 				responseBean.setErrorMsg("");
 			}
 			else{
 				responseBean.setErrorCode("-2");
 				responseBean.setErrorMsg("Invalid password.");
-			}			
+			}					
 		}
 		else{
 			responseBean.setErrorCode("-1");
 			responseBean.setErrorMsg("Invalid Login Id.");
-		}
-		return responseBean;
-		
+		}				
+		session.close();
+		return responseBean;		
 	}
 	
-	public ArrayList getProductIdListByCategory(RestRequestBean bean) throws Exception{
-		ArrayList dataList=new ArrayList();
-		Connection con=getConnection();
-		PreparedStatement pst=con.prepareStatement("select PRODUCT_ID FROM product where CATEGORY_ID=?");
-		pst.setString(1, bean.getCategoryId());		
-		ResultSet rs=pst.executeQuery();
-		while(rs.next()){
-			dataList.add(rs.getString(1));
-		}
+	@SuppressWarnings("unchecked")
+	public ArrayList<String> getProductIdListByCategory(RestRequestBean bean) throws Exception{
+		Session session=com.util.Configuration.getSession(ProductDtlsEntity.class);
+		Query query=session.createQuery("select e.productId from ProductDtlsEntity e where e.categoryId=:categoryId");
+		query.setString("categoryId", bean.getCategoryId());
+		ArrayList<String> dataList=(ArrayList<String>)query.list();
+		session.close();		
 		return dataList;
 	}
 	
-	public ArrayList getProductIdListByName(RestRequestBean bean) throws Exception{
-		ArrayList dataList=new ArrayList();
-		Connection con=getConnection();
-		PreparedStatement pst=con.prepareStatement("select PRODUCT_ID FROM product where PRODUCT_NAME like '%"+bean.getProductName()+"%'");		
-		ResultSet rs=pst.executeQuery();
-		while(rs.next()){
-			dataList.add(rs.getString(1));
-		}
+	@SuppressWarnings("unchecked")
+	public ArrayList<String> getProductIdListByName(RestRequestBean bean) throws Exception{		
+		Session session=com.util.Configuration.getSession(ProductDtlsEntity.class);
+		Query query=session.createQuery("select t.productId from ProductDtlsEntity t where t.productName like :productName");
+		query.setString("productName", bean.getProductName());
+		ArrayList<String> dataList=(ArrayList<String>)query.list();		
 		return dataList;
 	}
 	
-	public ArrayList getImageIdListByProduct(RestRequestBean bean) throws Exception{
-		ArrayList dataList=new ArrayList();
-		Connection con=getConnection();
-		PreparedStatement pst=con.prepareStatement("select IMAGE_ID FROM image_tab where PRODUCT_ID=?");
-		pst.setString(1, bean.getProductId());		
-		ResultSet rs=pst.executeQuery();
-		while(rs.next()){
-			dataList.add(rs.getString(1));
-		}
+	@SuppressWarnings("unchecked")
+	public ArrayList<String> getImageIdListByProduct(RestRequestBean bean) throws Exception{
+		Session session=com.util.Configuration.getSession(ImageEntity.class);
+		Query query=session.createQuery("select e.imageId from ImageEntity e where e.productId=:productId");
+		query.setString("productId", bean.getProductId());
+		ArrayList<String> dataList=(ArrayList<String>)query.list();
+		session.close();
 		return dataList;
 	}
 		
